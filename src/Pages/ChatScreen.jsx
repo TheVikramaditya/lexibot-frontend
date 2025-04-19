@@ -4,6 +4,7 @@ import { Flex, Spin } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import { LoadingOutlined } from '@ant-design/icons';
 import NarrationLoader from "../Components/NarrationLoader";
+import VoiceRecord from "../Components/VoiceRecord";
 
 import {
   SendOutlined,
@@ -22,6 +23,10 @@ export default function ChatScreen() {
   const [showLoader, setShowLoader] = useState(false);
   const [sessionId, setSessionId] = useState("");
   const [showNarrationLoader, setShowNarrationLoader] = useState(false);
+
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [interimText, setInterimText] = useState("");
 
 
 
@@ -128,6 +133,22 @@ export default function ChatScreen() {
   // };
 
   // const chatWindow =
+
+  const handleTranscript = (finalTranscript, interimTranscript = "") => {
+    if (finalTranscript) {
+      setMessage(prev => prev + " " + finalTranscript);
+      setInterimText("");
+    } else {
+      setInterimText(interimTranscript);
+    }
+  };
+
+  const handleRecordingStatus = (status) => {
+    setIsRecording(status);
+    if (!status) setInterimText(""); // Clear interim text when recording stops
+  };
+
+
   return (
     <>
       
@@ -187,6 +208,26 @@ export default function ChatScreen() {
               paddingRight: "3rem",
             }}
           />
+
+<div style={{
+          position: "absolute",
+          right: "0.5rem",
+          bottom: "0.5rem",
+          display: "flex",
+          gap: "0.5rem",
+        }}>
+          <VoiceRecord onTranscript={handleTranscript} onRecordingStatus={handleRecordingStatus} />
+          
+          <Button
+            type="text"
+            icon={showLoader ? <Spin indicator={<LoadingOutlined spin />} /> : <SendOutlined />}
+            onClick={handleSend}
+            style={{
+              color: message.trim() ? "#1890ff" : "#ccc",
+              pointerEvents: message.trim() && !showLoader ? "auto" : "none",
+            }}
+          />
+        </div>
 
       <Button
         type="text"
